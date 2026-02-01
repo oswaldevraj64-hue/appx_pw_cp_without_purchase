@@ -1,3 +1,4 @@
+import aiohttp
 import requests
 import asyncio
 import aiohttp
@@ -86,8 +87,10 @@ async def fetch_pwwp_data(session: aiohttp.ClientSession, url: str, headers: Dic
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            async with session.request(method, url, headers=headers, params=params, json=data) as response:
-                response.raise_for_status()
+            async with aiohttp.ClientSession() as session:
+    async with session.get(url, headers=headers, params=params) as response:
+        response.raise_for_status()
+        result = await response.json()
                 return await response.json()
         except aiohttp.ClientError as e:
             logging.error(f"Attempt {attempt + 1} failed: aiohttp error fetching {url}: {e}")
